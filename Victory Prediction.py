@@ -3,7 +3,7 @@
 # Brother Burton
 # CS 450 Machine Learning Project
 ###################################################
-
+import dota2api
 import random
 import numpy as np
 import sys
@@ -77,8 +77,8 @@ def train_system(data, target, classifier):
 def main(argv):
     api = dota2api.Initialise("7120541C3FAD5E94CFB2275D7CBA8DCA")
     match = api.get_match_details(match_id=1000193456)
-    print "Match win:"
-    match['radiant_win']
+    print ("Match win:")
+    print (match['radiant_win'])
     
     number = 0
 
