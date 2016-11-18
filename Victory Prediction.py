@@ -1,5 +1,5 @@
 ###########################################
-# Robert Dickerson, John Krieger, Logan Skidmore
+# Robert Dickerson, John Krieger, Logan Skidmore the cool one
 # Brother Burton
 # CS 450 Machine Learning Project
 ###################################################
