@@ -3,6 +3,7 @@
 # Brother Burton
 # CS 450 Machine Learning Project
 ###################################################
+
 import random
 import numpy as np
 import sys
@@ -59,9 +60,7 @@ def get_accuracy(results_of_predict, test_targets):
     for i in range(test_targets.size):
         value_correct += results_of_predict[i] == test_targets[i]
 
-    print("The system correctly predicted ", value_correct, " of ", test_targets.size,
-          ". \nThe system was able to correctly predict ",
-          "{0:.2f}% of the time!".format(100 * (value_correct / test_targets.size)), sep="")
+
 
 def train_system(data, target, classifier):
     #random.shuffle(iris.data)
@@ -76,6 +75,11 @@ def train_system(data, target, classifier):
     get_accuracy(classifier.predict(train_data, train_target, test_data, k), test_target)
 
 def main(argv):
+    api = dota2api.Initialise("7120541C3FAD5E94CFB2275D7CBA8DCA")
+    match = api.get_match_details(match_id=1000193456)
+    print "Match win:"
+    match['radiant_win']
+    
     number = 0
 
     knn = KNN()
