@@ -10,6 +10,7 @@ import sys
 import pandas
 from sklearn import datasets
 from sklearn.cross_validation import train_test_split as tsp
+import csv
 
 
 def getKAmount():
@@ -75,18 +76,52 @@ def train_system(data, target, classifier):
     get_accuracy(classifier.predict(train_data, train_target, test_data, k), test_target)
 
 def main(argv):
-    api = dota2api.Initialise("7120541C3FAD5E94CFB2275D7CBA8DCA")
-    match = api.get_match_details(match_id=2812549505)
+    api = dota2api.Initialise("7FCC616D07990B76386BCE8AB2F51B32")
+    match = api.get_match_details(match_id=2813794044)
     print ("Match win:")
     # 'radiant_win' says if the radiant team won. if false dire team won. (whatever that means)
     print (match['radiant_win']),(match['duration'])
     players = (match['players'])
-    # these are the match players
-    for i in range(0,10):
-        print "Player#", i
-        print players[i]
 
-    
+    radiant_team = {}
+    dire_team = {}
+    rad_zeroes = [0] * 112
+    dire_zeroes = [0] * 112
+
+
+    if (match['radiant_win']):
+        radiant_team.update({'target': 'Win'})
+        dire_team.update({'target': 'Loss'})
+    else:
+        radiant_team.update({'target': 'Loss'})
+        dire_team.update({'target': 'Win'})
+
+    # these are the match players
+    for i in range(0,5):
+        #print "Radiant Player#", i
+        player = players[i]
+        radiant_team.update({i: player['hero_id']})
+        rad_zeroes[player['hero_id']] = 1
+
+    print (radiant_team)
+
+
+    for i in range(5,10):
+        #print "Dire Player#", i
+        player = players[i]
+        dire_team.update({i: player['hero_id']})
+        dire_zeroes[player['hero_id']] = 1
+
+    print (dire_team)
+
+    with open('dota2games.csv', 'wb') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter=' ',
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        spamwriter.writerow([dire_team['target']]+ rad_zeroes)
+        spamwriter.writerow([radiant_team['target']] + dire_zeroes)
+
+
+
     number = 0
 
     knn = KNN()
