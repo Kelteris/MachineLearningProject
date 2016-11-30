@@ -76,43 +76,50 @@ def train_system(data, target, classifier):
 
 def main(argv):
     api = dota2api.Initialise("7120541C3FAD5E94CFB2275D7CBA8DCA")
-    match = api.get_match_details(match_id=1000193456)
+    match = api.get_match_details(match_id=2812549505)
     print ("Match win:")
-    print (match['radiant_win'])
+    # 'radiant_win' says if the radiant team won. if false dire team won. (whatever that means)
+    print (match['radiant_win']),(match['duration'])
+    players = (match['players'])
+    # these are the match players
+    for i in range(0,10):
+        print "Player#", i
+        print players[i]
+
     
     number = 0
 
     knn = KNN()
-    while number != 1 or number != 2 or number != 3:
-        print ("\nChoose the Data you would like to use\n"
-               "To view Iris Prediction,          enter 1\n"
-               "To view Cars Prediction,          enter 2\n"
-               "To view Breast Cancer Prediction, enter 3")
+    #while number != 1 or number != 2 or number != 3:
+     #   print ("\nChoose the Data you would like to use\n"
+      #         "To view Iris Prediction,          enter 1\n"
+       #        "To view Cars Prediction,          enter 2\n"
+        #       "To view Breast Cancer Prediction, enter 3")
 
-        number = int(input("Choice: "))
+        #number = int(input("Choice: "))
 
-        if (number == 1):
-            irisData = datasets.load_iris()
-            trainData = irisData.data
-            targetData = irisData.target
-            train_system(trainData, targetData, knn)
+        #if (number == 1):
+            #irisData = datasets.load_iris()
+           # trainData = irisData.data
+          #  targetData = irisData.target
+         #   train_system(trainData, targetData, knn)
 
         #not sure why but it doesnt want to load my csv
-        if (number == 2):
-            carData = pandas.read_csv("cardata.csv")
-            carData = carData.values
-            trainData, targetData = carData[:, :6], carData[:, 6]
+        #if (number == 2):
+       #     carData = pandas.read_csv("cardata.csv")
+      #      carData = carData.values
+     #       trainData, targetData = carData[:, :6], carData[:, 6]
             #trainData = carData[['first', 'second', 'third', 'fourth', 'fifth', 'sixth']]
             #print (carData.values)
             #print (trainData)
             #targetData = carData['target']
-            train_system(trainData, targetData, knn)
+    #        train_system(trainData, targetData, knn)
 
-        if (number == 3):
-            breastCancerData = datasets.load_breast_cancer()
-            trainData = breastCancerData.data
-            targetData = breastCancerData.target
-            train_system(trainData, targetData, knn)
+#      if (number == 3):
+#            breastCancerData = datasets.load_breast_cancer()
+ #           trainData = breastCancerData.data
+  #          targetData = breastCancerData.target
+   #         train_system(trainData, targetData, knn)
 
 if __name__ == "__main__":
     main(sys.argv)
