@@ -7,10 +7,11 @@ import dota2api
 import random
 import numpy as np
 import sys
-
+import pandas
+from sklearn import datasets
+from sklearn.cross_validation import train_test_split as tsp
 import csv
 
-import tsp as tsp
 
 
 def getKAmount():
@@ -77,19 +78,20 @@ def train_system(data, target, classifier):
 
 def main(argv):
     api = dota2api.Initialise("7FCC616D07990B76386BCE8AB2F51B32")
+    matches = api.get_match_history_by_seq_num(start_at_match_seq_num=2300000000)
+    print matches['status']
+    print(len(matches['matches']))
+    for mat in matches['matches']:
+        print mat['match_id']
     match = api.get_match_details(match_id=2813794044)
     print ("Match win:")
     # 'radiant_win' says if the radiant team won. if false dire team won. (whatever that means)
     print (match['radiant_win']),(match['duration'])
     players = (match['players'])
 
-
-
-
-    radiant_team = {}
-    dire_team = {}
     rad_zeroes = [0] * 112
     dire_zeroes = [0] * 112
+    gameResults = []
 
     player = players[0]
     print player['hero_id']
@@ -98,38 +100,53 @@ def main(argv):
     print heroesList['heroes']
 
     if (match['radiant_win']):
-        radiant_team.update({'target': 'Win'})
-        dire_team.update({'target': 'Loss'})
+        radiant_team ='Win'
+        dire_team = 'Loss'
     else:
-        radiant_team.update({'target': 'Loss'})
-        dire_team.update({'target': 'Win'})
+        radiant_team = 'Loss'
+        dire_team ='Win'
 
     # these are the match players
     for i in range(0,5):
         #print "Radiant Player#", i
         player = players[i]
-        radiant_team.update({i: player['hero_name']})
         rad_zeroes[player['hero_id']] = 1
 
-    print (radiant_team)
 
 
     for i in range(5,10):
         #print "Dire Player#", i
         player = players[i]
-        dire_team.update({i: player['hero_name']})
         dire_zeroes[player['hero_id']] = 1
 
-    print (dire_team)
 
+    all_zeroes = []
+    all_zeroes.append(rad_zeroes)
+    all_zeroes.append(dire_zeroes)
+
+    gameResults.append(radiant_team)
+    gameResults.append(dire_team)
     with open('dota2games.csv', 'wb') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        spamwriter.writerow([dire_team['target']] + rad_zeroes)
-        spamwriter.writerow([radiant_team['target']] + dire_zeroes)
+        for zeroes in all_zeroes:
+            spamwriter.writerow([zeroes])
+
+    with open('dota2gamesResults.csv', 'wb') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter=' ',
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        for i in range(0, len(gameResults)):
+            spamwriter.writerow(gameResults[i])
 
 
-
+    #Print the hero names that are in the game ie from Zeroes to Heroes
+    for zeroes in all_zeroes:
+        for i,x in enumerate(zeroes):
+            if x == 1:
+                print (i)
+                heroes = api.get_heroes()
+                newheroes = heroes['heroes']
+                print (newheroes[i])
     number = 0
 
     knn = KNN()
