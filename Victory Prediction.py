@@ -7,10 +7,10 @@ import dota2api
 import random
 import numpy as np
 import sys
-import pandas
-from sklearn import datasets
-from sklearn.cross_validation import train_test_split as tsp
+
 import csv
+
+import tsp as tsp
 
 
 def getKAmount():
@@ -83,11 +83,19 @@ def main(argv):
     print (match['radiant_win']),(match['duration'])
     players = (match['players'])
 
+
+
+
     radiant_team = {}
     dire_team = {}
     rad_zeroes = [0] * 112
     dire_zeroes = [0] * 112
 
+    player = players[0]
+    print player['hero_id']
+    print player['hero_name']
+    heroesList = api.get_heroes()
+    print heroesList['heroes']
 
     if (match['radiant_win']):
         radiant_team.update({'target': 'Win'})
@@ -100,7 +108,7 @@ def main(argv):
     for i in range(0,5):
         #print "Radiant Player#", i
         player = players[i]
-        radiant_team.update({i: player['hero_id']})
+        radiant_team.update({i: player['hero_name']})
         rad_zeroes[player['hero_id']] = 1
 
     print (radiant_team)
@@ -109,7 +117,7 @@ def main(argv):
     for i in range(5,10):
         #print "Dire Player#", i
         player = players[i]
-        dire_team.update({i: player['hero_id']})
+        dire_team.update({i: player['hero_name']})
         dire_zeroes[player['hero_id']] = 1
 
     print (dire_team)
@@ -117,7 +125,7 @@ def main(argv):
     with open('dota2games.csv', 'wb') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        spamwriter.writerow([dire_team['target']]+ rad_zeroes)
+        spamwriter.writerow([dire_team['target']] + rad_zeroes)
         spamwriter.writerow([radiant_team['target']] + dire_zeroes)
 
 
