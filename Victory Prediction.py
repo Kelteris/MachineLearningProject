@@ -76,56 +76,58 @@ def train_system(data, target, classifier):
     classifier.train(train_data, train_target)
     get_accuracy(classifier.predict(train_data, train_target, test_data, k), test_target)
 
-def main(argv):
+def createcsv(HeroList):
     api = dota2api.Initialise("7FCC616D07990B76386BCE8AB2F51B32")
-    matches = api.get_match_history_by_seq_num(start_at_match_seq_num=2300000000)
-    print matches['status']
-    print(len(matches['matches']))
-    for mat in matches['matches']:
-        print mat['match_id']
-    match = api.get_match_details(match_id=2813794044)
-    print ("Match win:")
-    # 'radiant_win' says if the radiant team won. if false dire team won. (whatever that means)
-    print (match['radiant_win']),(match['duration'])
-    players = (match['players'])
-
-    rad_zeroes = [0] * 112
-    dire_zeroes = [0] * 112
     gameResults = []
-
-    player = players[0]
-    print player['hero_id']
-    print player['hero_name']
-    heroesList = api.get_heroes()
-    print heroesList['heroes']
-
-    if (match['radiant_win']):
-        radiant_team ='Win'
-        dire_team = 'Loss'
-    else:
-        radiant_team = 'Loss'
-        dire_team ='Win'
-
-    # these are the match players
-    for i in range(0,5):
-        #print "Radiant Player#", i
-        player = players[i]
-        rad_zeroes[player['hero_id']] = 1
-
-
-
-    for i in range(5,10):
-        #print "Dire Player#", i
-        player = players[i]
-        dire_zeroes[player['hero_id']] = 1
-
-
     all_zeroes = []
-    all_zeroes.append(rad_zeroes)
-    all_zeroes.append(dire_zeroes)
+    # gets 100 matches for now
+    matches = api.get_match_history_by_seq_num(start_at_match_seq_num=2300000002, matches_requested=50)
+    print(len(matches['matches']))
 
-    gameResults.append(radiant_team)
-    gameResults.append(dire_team)
+    for mat in matches['matches']:
+        match_id = mat['match_id']
+        match = api.get_match_details(match_id=match_id)
+        print (match_id, " Match win:")
+        # 'radiant_win' says if the radiant team won. if false dire team won. (whatever that means)
+        print (match['radiant_win']), (match['duration'])
+        players = (match['players'])
+
+        rad_zeroes = [0] * 114
+        dire_zeroes = [0] * 114
+
+        # player = players[0]
+        # print player['hero_id']
+        # print player['hero_name']
+        # heroesList = api.get_heroes()
+        # print heroesList['heroes']
+
+        if (match['radiant_win']):
+            radiant_team = 'Win'
+            dire_team = 'Loss'
+        else:
+            radiant_team = 'Loss'
+            dire_team = 'Win'
+
+            # these are the match players
+        for i in range(0, 5):
+            # print "Radiant Player#", i
+            player = players[i]
+            print (player['hero_id'])
+            print player['hero_name']
+            rad_zeroes[player['hero_id']] = 1
+
+        for i in range(5, 10):
+            # print "Dire Player#", i
+            player = players[i]
+            dire_zeroes[player['hero_id']] = 1
+
+        all_zeroes.append(rad_zeroes)
+        all_zeroes.append(dire_zeroes)
+
+        gameResults.append(radiant_team)
+        gameResults.append(dire_team)
+        # END OF MATCH FOR LOOP
+
     with open('dota2games.csv', 'wb') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -138,17 +140,29 @@ def main(argv):
         for i in range(0, len(gameResults)):
             spamwriter.writerow(gameResults[i])
 
+    # Print the hero names that are in the game ie from Zeroes to Heroes
 
-    #Print the hero names that are in the game ie from Zeroes to Heroes
-    for zeroes in all_zeroes:
-        for i,x in enumerate(zeroes):
-            if x == 1:
-                print (i)
-                heroes = api.get_heroes()
-                newheroes = heroes['heroes']
-                print (newheroes[i])
+    for i in range(0, len(rad_zeroes)):
+        if rad_zeroes[i] == 1:
+            print (i)
+            #eroes = api.get_heroes()
+            #HeroList = heroes['heroes']
+            thisguy = HeroList[i-1]
+            print (thisguy)#['localized_name'])
+
+
+
+
+def main(argv):
+    HeroList=[]
+    with open('result.csv', 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+        for row in spamreader:
+            HeroList.append(row)
+
+    createcsv(HeroList)
+
     number = 0
-
     knn = KNN()
     #while number != 1 or number != 2 or number != 3:
      #   print ("\nChoose the Data you would like to use\n"
