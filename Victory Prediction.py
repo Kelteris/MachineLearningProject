@@ -80,60 +80,59 @@ def createcsv(HeroList):
     api = dota2api.Initialise("7FCC616D07990B76386BCE8AB2F51B32")
     gameResults = []
     all_zeroes = []
+    sequence_num = 2300000000
+    while(len(gameResults) < 5000):
+        matches = api.get_match_history_by_seq_num(start_at_match_seq_num=sequence_num, matches_requested=100)
 
-    matches = api.get_match_history_by_seq_num(start_at_match_seq_num=2300000002, matches_requested=100)
 
-    #matches = [x for x in matches if x['lobby_type'] != 8]
+        for mat in matches['matches']:
+            match_id = mat['match_id']
+            if(any(mat['lobby_type'] == x for x in [8,3, -1, 4, 1])):
+                continue
 
-    print(len(matches['matches']))
+            print ('Lobby: ',  mat['lobby_type'])
+            match = api.get_match_details(match_id=match_id)
+            print (match_id, " Match win:")
+            # 'radiant_win' says if the radiant team won. if false dire team won. (whatever that means)
+            print (match['radiant_win']), (match['duration'])
+            players = (match['players'])
 
-    for mat in matches['matches']:
-        match_id = mat['match_id']
-        if(any(mat['lobby_type'] == x for x in [8,3, -1, 4])):
-            continue
+            rad_zeroes = [0] * 114
+            dire_zeroes = [0] * 114
 
-        print ('Lobby: ',  mat['lobby_type'])
-        match = api.get_match_details(match_id=match_id)
-        print (match_id, " Match win:")
-        # 'radiant_win' says if the radiant team won. if false dire team won. (whatever that means)
-        print (match['radiant_win']), (match['duration'])
-        players = (match['players'])
-
-        rad_zeroes = [0] * 114
-        dire_zeroes = [0] * 114
-
-        # player = players[0]
-        # print player['hero_id']
-        # print player['hero_name']
-        # heroesList = api.get_heroes()
-        # print heroesList['heroes']
-
-        if (match['radiant_win']):
-            radiant_team = 'Win'
-            dire_team = 'Loss'
-        else:
-            radiant_team = 'Loss'
-            dire_team = 'Win'
+            if (match['radiant_win']):
+                radiant_team = 'Win'
+                dire_team = 'Loss'
+            else:
+                radiant_team = 'Loss'
+                dire_team = 'Win'
 
             # these are the match players
-        for i in range(0, 5):
+            for i in range(0, 5):
             # print "Radiant Player#", i
-            player = players[i]
-            print (player['hero_id'])
-            print player['hero_name']
-            rad_zeroes[player['hero_id']] = 1
+                player = players[i]
+                if player['hero_id'] == 0:
+                    continue
+                print (player['hero_id'])
+                print player['hero_name']
+                rad_zeroes[player['hero_id']] = 1
 
-        for i in range(5, 10):
-            # print "Dire Player#", i
-            player = players[i]
-            dire_zeroes[player['hero_id']] = 1
+            for i in range(5, 10):
+                # print "Dire Player#", i
+                if player['hero_id'] == 0:
+                    continue
+                player = players[i]
+                dire_zeroes[player['hero_id']] = 1
 
-        all_zeroes.append(rad_zeroes)
-        all_zeroes.append(dire_zeroes)
+            all_zeroes.append(rad_zeroes)
+            all_zeroes.append(dire_zeroes)
 
-        gameResults.append(radiant_team)
-        gameResults.append(dire_team)
-        # END OF MATCH FOR LOOP
+            gameResults.append(radiant_team)
+            gameResults.append(dire_team)
+            # END OF MATCH FOR LOOP
+        print ("Does this work?", match['match_seq_num'])
+        sequence_num = (match['match_seq_num'] + 1)
+        #WHILE LOOP END
 
     with open('dota2games.csv', 'wb') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
