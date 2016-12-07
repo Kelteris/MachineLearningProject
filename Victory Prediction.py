@@ -8,8 +8,8 @@ import random
 import numpy as np
 import sys
 import pandas
-from sklearn import datasets
-from sklearn.cross_validation import train_test_split as tsp
+from sklearn.model_selection import train_test_split as tts
+
 import csv
 
 
@@ -64,17 +64,28 @@ def get_accuracy(results_of_predict, test_targets):
 
 
 
-def train_system(data, target, classifier):
+def train_system(data, classifier):
     #random.shuffle(iris.data)
     testAmount = float(0.3)
     timesShuffled = 15
     k = getKAmount()
+    training_set = []
+    testing_set = []
+    count = 0
+    seventy_percent = len(data) * .7
+    for i in data:
+        if count < seventy_percent:
+            training_set.append(i)
+            count += 1
+        else:
+            testing_set.append(i)
 
-    train_data, test_data, train_target, test_target = tsp(data, target, test_size = testAmount,
-                                                           random_state = timesShuffled)
+    print len(training_set)
+    print len(testing_set)
+    #train_data, test_data, train_target, test_target = tts(data, target, test_size = testAmount, random_state = timesShuffled)
 
-    classifier.train(train_data, train_target)
-    get_accuracy(classifier.predict(train_data, train_target, test_data, k), test_target)
+    #classifier.train(train_data, train_target)
+    #get_accuracy(classifier.predict(train_data, train_target, test_data, k), test_target)
 
 def createcsv(HeroList):
     api = dota2api.Initialise("7FCC616D07990B76386BCE8AB2F51B32")
@@ -140,6 +151,9 @@ def createcsv(HeroList):
         for zeroes in all_zeroes:
             spamwriter.writerow([zeroes])
 
+        #for i in range(0, len(gameResults)):
+         #   spamwriter.writerow(gameResults[i])
+
     with open('dota2gamesResults.csv', 'wb') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -164,30 +178,52 @@ def main(argv):
     PlayerList=[]
     ResultsList=[]
     with open('result.csv', 'rb') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-        for row in spamreader:
+       spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+       for row in spamreader:
             HeroList.append(row)
 
-    with open('dota2games.csv', 'rb') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-        for row in spamreader:
-            PlayerList.append(row)
-
-    with open('dota2gamesResults.csv', 'rb') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-        for row in spamreader:
-            ResultsList.append(row)
-
-    createcsv(HeroList)
-
-    zippy = zip(PlayerList, ResultsList)
-
-    print zippy[1]
+    #with open('dota2games.csv', 'rb') as csvfile:
+    #    spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+    #    for row in spamreader:
+    #        PlayerList.append(row)
 
 
+    #createcsv(HeroList)
 
-    number = 0
+    #zippy = zip(PlayerList, ResultsList)
+
     knn = KNN()
+    train_hero_data = pandas.read_csv("dota2games.csv")
+    target_hero_data = pandas.read_csv("dota2gamesResults.csv")
+    trainData = train_hero_data_values = train_hero_data.values
+    targetData = target_hero_data_values = target_hero_data.values
+
+    zippy = zip(trainData, targetData)
+    train_system(zippy, knn)
+
+
+    #classifier = neighbors.KNeighborsClassifier(n_neighbors=3)
+    #trainData, targetData = PlayerList, ResultsList
+    #classifier.predict()
+    #train_system(trainData, targetData, classifier)
+    #predictions = classifier.predict(test_data)
+    #print(predictions)
+
+    #value_correct = 0
+    #for i in range(test_target.size):
+    #    value_correct += predictions[i] == test_target[i]
+
+    #print ("The system correctly predicted ", value_correct, " of ", test_target.size,
+    #      ". \nThe system was able to correctly predict ",
+    #      "{0:.2f}% of the time!".format(100 * (value_correct / test_target.size)))
+
+#print zippy[1]
+
+
+
+    #number = 0
+    #knn = KNN()
+
     #while number != 1 or number != 2 or number != 3:
      #   print ("\nChoose the Data you would like to use\n"
       #         "To view Iris Prediction,          enter 1\n"
