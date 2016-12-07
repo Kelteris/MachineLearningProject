@@ -80,12 +80,19 @@ def createcsv(HeroList):
     api = dota2api.Initialise("7FCC616D07990B76386BCE8AB2F51B32")
     gameResults = []
     all_zeroes = []
-    # gets 100 matches for now
-    matches = api.get_match_history_by_seq_num(start_at_match_seq_num=2300000002, matches_requested=50)
+
+    matches = api.get_match_history_by_seq_num(start_at_match_seq_num=2300000002, matches_requested=100)
+
+    #matches = [x for x in matches if x['lobby_type'] != 8]
+
     print(len(matches['matches']))
 
     for mat in matches['matches']:
         match_id = mat['match_id']
+        if(any(mat['lobby_type'] == x for x in [8,3, -1, 4])):
+            continue
+
+        print ('Lobby: ',  mat['lobby_type'])
         match = api.get_match_details(match_id=match_id)
         print (match_id, " Match win:")
         # 'radiant_win' says if the radiant team won. if false dire team won. (whatever that means)
@@ -172,7 +179,7 @@ def main(argv):
         for row in spamreader:
             ResultsList.append(row)
 
-    #createcsv(HeroList)
+    createcsv(HeroList)
 
     zippy = zip(PlayerList, ResultsList)
 
