@@ -155,12 +155,30 @@ def createcsv(HeroList):
 
 def main(argv):
     HeroList=[]
+    PlayerList=[]
+    ResultsList=[]
     with open('result.csv', 'rb') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
         for row in spamreader:
             HeroList.append(row)
 
-    createcsv(HeroList)
+    with open('dota2games.csv', 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+        for row in spamreader:
+            PlayerList.append(row)
+
+    with open('dota2gamesResults.csv', 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+        for row in spamreader:
+            ResultsList.append(row)
+
+    #createcsv(HeroList)
+
+    zippy = zip(PlayerList, ResultsList)
+
+    print zippy[1]
+
+
 
     number = 0
     knn = KNN()
