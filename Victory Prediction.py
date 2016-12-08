@@ -8,10 +8,13 @@ import random
 import numpy as np
 import sys
 import pandas
-from sklearn.model_selection import train_test_split as tts
+from sklearn.cross_validation import train_test_split as tts
+import sklearn.metrics.scorer
+
 
 import csv
 
+from sklearn.neighbors import KNeighborsClassifier
 
 
 def getKAmount():
@@ -26,8 +29,6 @@ def getKAmount():
 class KNN:
 
     def predict(self, train_data, train_target, test_data, k):
-
-
         nInputs = np.shape(test_data)[0]
         closest = np.zeros(nInputs)
 
@@ -47,6 +48,8 @@ class KNN:
                     counts[train_target[indices[i]]] += 1
                 closest[n] = np.max(counts)
 
+
+
         return closest
 
 
@@ -61,20 +64,24 @@ def get_accuracy(results_of_predict, test_targets):
     value_correct = 0
     for i in range(test_targets.size):
         value_correct += results_of_predict[i] == test_targets[i]
+    print ("The system correctly predicted ", value_correct, " of ", test_targets.size,
+         ". \nThe system was able to correctly predict ",
+         "{0:.2f}% of the time!".format(100 * (value_correct / test_targets.size)))
 
 
 
-def train_system(data, classifier):
+def train_system(data, target, classifier):
     #random.shuffle(iris.data)
     testAmount = float(0.3)
     timesShuffled = 15
     k = getKAmount()
+    '''
     training_set = []
     testing_set = []
     count = 0
     seventy_percent = len(data) * .7
     for i in data:
-        if count < seventy_percent:
+        if count <= seventy_percent:
             training_set.append(i)
             count += 1
         else:
@@ -82,17 +89,18 @@ def train_system(data, classifier):
 
     print len(training_set)
     print len(testing_set)
-    #train_data, test_data, train_target, test_target = tts(data, target, test_size = testAmount, random_state = timesShuffled)
+    '''
+    train_data, test_data, train_target, test_target = tts(data, target, test_size = testAmount, random_state = timesShuffled)
 
-    #classifier.train(train_data, train_target)
-    #get_accuracy(classifier.predict(train_data, train_target, test_data, k), test_target)
+    classifier.train(train_data, train_target)
+    get_accuracy(classifier.predict(train_data, train_target, test_data, k), test_target)
 
 def createcsv(HeroList):
     api = dota2api.Initialise("7FCC616D07990B76386BCE8AB2F51B32")
     gameResults = []
     all_zeroes = []
     sequence_num = 2300000000
-    while(len(gameResults) < 5000):
+    while(len(gameResults) < 50):
         matches = api.get_match_history_by_seq_num(start_at_match_seq_num=sequence_num, matches_requested=100)
 
 
@@ -111,12 +119,9 @@ def createcsv(HeroList):
             rad_zeroes = [0] * 114
             dire_zeroes = [0] * 114
 
-            if (match['radiant_win']):
-                radiant_team = 'Win'
-                dire_team = 'Loss'
-            else:
-                radiant_team = 'Loss'
-                dire_team = 'Win'
+            radiant_team = match['radiant_win']
+            dire_team = not(radiant_team)
+
 
             # these are the match players
             for i in range(0, 5):
@@ -151,14 +156,13 @@ def createcsv(HeroList):
         for zeroes in all_zeroes:
             spamwriter.writerow([zeroes])
 
-        #for i in range(0, len(gameResults)):
-         #   spamwriter.writerow(gameResults[i])
+
 
     with open('dota2gamesResults.csv', 'wb') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        for i in range(0, len(gameResults)):
-            spamwriter.writerow(gameResults[i])
+        spamwriter.writerow(gameResults)
+
 
     # Print the hero names that are in the game ie from Zeroes to Heroes
 
@@ -190,70 +194,41 @@ def main(argv):
 
     #createcsv(HeroList)
 
-    #zippy = zip(PlayerList, ResultsList)
 
-    knn = KNN()
+    #knn = KNN()
     train_hero_data = pandas.read_csv("dota2games.csv")
     target_hero_data = pandas.read_csv("dota2gamesResults.csv")
-    trainData = train_hero_data_values = train_hero_data.values
-    targetData = target_hero_data_values = target_hero_data.values
+    data = train_hero_data_values = train_hero_data.values
+    target = target_hero_data_values = target_hero_data.values
+    timesShuffled = 3
+    testAmount = .3
+    #zippy = zip(trainData, targetData)
+    #train_system(trainData, targetData, knn)
 
-    zippy = zip(trainData, targetData)
-    train_system(zippy, knn)
-
-
-    #classifier = neighbors.KNeighborsClassifier(n_neighbors=3)
-    #trainData, targetData = PlayerList, ResultsList
-    #classifier.predict()
-    #train_system(trainData, targetData, classifier)
-    #predictions = classifier.predict(test_data)
-    #print(predictions)
+    train_data, test_data, train_target, test_target = tts(data, target, test_size=testAmount,
+                                                           random_state=timesShuffled)
+    print(train_data)
+    print(train_target)
+    classifier = KNeighborsClassifier(n_neighbors=3)
+    classifier.fit(train_data,train_target)
+    predictions = classifier.predict(test_data)
+    print(predictions)
 
     #value_correct = 0
     #for i in range(test_target.size):
-    #    value_correct += predictions[i] == test_target[i]
+     #   value_correct += predictions[i] == test_target[i]
 
+    print get_accuracy(predictions, test_target)
     #print ("The system correctly predicted ", value_correct, " of ", test_target.size,
-    #      ". \nThe system was able to correctly predict ",
-    #      "{0:.2f}% of the time!".format(100 * (value_correct / test_target.size)))
-
-#print zippy[1]
-
+     #      ". \nThe system was able to correctly predict ",
+      #     "{0:.2f}% of the time!".format(100 * (value_correct / test_target.size)))
 
 
     #number = 0
     #knn = KNN()
 
-    #while number != 1 or number != 2 or number != 3:
-     #   print ("\nChoose the Data you would like to use\n"
-      #         "To view Iris Prediction,          enter 1\n"
-       #        "To view Cars Prediction,          enter 2\n"
-        #       "To view Breast Cancer Prediction, enter 3")
 
-        #number = int(input("Choice: "))
 
-        #if (number == 1):
-            #irisData = datasets.load_iris()
-           # trainData = irisData.data
-          #  targetData = irisData.target
-         #   train_system(trainData, targetData, knn)
-
-        #not sure why but it doesnt want to load my csv
-        #if (number == 2):
-       #     carData = pandas.read_csv("cardata.csv")
-      #      carData = carData.values
-     #       trainData, targetData = carData[:, :6], carData[:, 6]
-            #trainData = carData[['first', 'second', 'third', 'fourth', 'fifth', 'sixth']]
-            #print (carData.values)
-            #print (trainData)
-            #targetData = carData['target']
-    #        train_system(trainData, targetData, knn)
-
-#      if (number == 3):
-#            breastCancerData = datasets.load_breast_cancer()
- #           trainData = breastCancerData.data
-  #          targetData = breastCancerData.target
-   #         train_system(trainData, targetData, knn)
 
 if __name__ == "__main__":
     main(sys.argv)
