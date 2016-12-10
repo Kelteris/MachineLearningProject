@@ -171,6 +171,7 @@ def createcsv(HeroList):
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
         spamwriter.writerow(gameResults)
     '''
+    #sup
     with open('dota2gamesResults2.csv', 'wb') as csvfile:
         spamwriter2 = csv.writer(csvfile, delimiter=' ',
                                 quotechar = '|', quoting = csv.QUOTE_MINIMAL)
