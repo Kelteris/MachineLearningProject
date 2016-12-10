@@ -100,7 +100,7 @@ def createcsv(HeroList):
     gameResults = []
     all_zeroes = []
     sequence_num = 2300000000
-    while(len(gameResults) < 50):
+    while(len(gameResults) < 25000):
         matches = api.get_match_history_by_seq_num(start_at_match_seq_num=sequence_num, matches_requested=100)
 
 
@@ -122,6 +122,12 @@ def createcsv(HeroList):
             radiant_team = match['radiant_win']
             dire_team = not(radiant_team)
 
+            if(radiant_team):
+                radiant_team = 1
+                dire_team = 0
+            else:
+                radiant_team = 0
+                dire_team = 1
 
             # these are the match players
             for i in range(0, 5):
@@ -150,6 +156,8 @@ def createcsv(HeroList):
         sequence_num = (match['match_seq_num'] + 1)
         #WHILE LOOP END
 
+    for res in gameResults:
+        print res
     with open('dota2games.csv', 'wb') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -157,12 +165,17 @@ def createcsv(HeroList):
             spamwriter.writerow([zeroes])
 
 
-
+    '''
     with open('dota2gamesResults.csv', 'wb') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
         spamwriter.writerow(gameResults)
-
+    '''
+    with open('dota2gamesResults2.csv', 'wb') as csvfile:
+        spamwriter2 = csv.writer(csvfile, delimiter=' ',
+                                quotechar = '|', quoting = csv.QUOTE_MINIMAL)
+        for res in gameResults :
+            spamwriter2.writerow([res])
 
     # Print the hero names that are in the game ie from Zeroes to Heroes
 
@@ -192,14 +205,18 @@ def main(argv):
     #        PlayerList.append(row)
 
 
-    #createcsv(HeroList)
+    createcsv(HeroList)
 
-
+    '''
     #knn = KNN()
     train_hero_data = pandas.read_csv("dota2games.csv")
+    print(train_hero_data)
     target_hero_data = pandas.read_csv("dota2gamesResults.csv")
+    print(target_hero_data)
     data = train_hero_data_values = train_hero_data.values
+    print ("data:",data)
     target = target_hero_data_values = target_hero_data.values
+    print ("target:",target)
     timesShuffled = 3
     testAmount = .3
     #zippy = zip(trainData, targetData)
@@ -213,12 +230,11 @@ def main(argv):
     classifier.fit(train_data,train_target)
     predictions = classifier.predict(test_data)
     print(predictions)
-
+    '''
     #value_correct = 0
     #for i in range(test_target.size):
      #   value_correct += predictions[i] == test_target[i]
 
-    print get_accuracy(predictions, test_target)
     #print ("The system correctly predicted ", value_correct, " of ", test_target.size,
      #      ". \nThe system was able to correctly predict ",
       #     "{0:.2f}% of the time!".format(100 * (value_correct / test_target.size)))
