@@ -8,13 +8,10 @@ import random
 import numpy as np
 import sys
 import pandas
-from sklearn.cross_validation import train_test_split as tts
-import sklearn.metrics.scorer
 
 
 import csv
 
-from sklearn.neighbors import KNeighborsClassifier
 
 
 def getKAmount():
